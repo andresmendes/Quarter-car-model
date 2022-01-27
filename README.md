@@ -2,7 +2,7 @@
 # Quarter car model
 Simulation and animation of a quarter car model.
 
-Watch the animation on YouTube: https://youtu.be/51MHni7YKgQ
+<!--Watch the animation on YouTube: https://youtu.be/51MHni7YKgQ-->
 
 ![Logo](https://www.mathworks.com/matlabcentral/mlc-downloads/downloads/4c656cd1-ed06-47a4-85af-d4aac7bd7cb8/97a92829-837b-4fbb-9315-c72a7e6958a2/images/1643290337.png)
 
