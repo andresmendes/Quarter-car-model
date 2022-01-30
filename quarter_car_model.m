@@ -28,36 +28,36 @@ fR      = 30/playback_speed;        % Frame rate                    [fps]
 dt      = 1/fR;                     % Time resolution               [s]
 time    = linspace(0,tF,tF*fR);     % Time                          [s]
 
-%% Track
+%% Road
 % Stretch 1
-x1_total = 1.1;                     % Distance of the first stretch [m]
-dx1 = 0.1;                          % resolution                    [m]
-x1 = 0:dx1:x1_total;
-z1 = zeros(1,length(x1));
+x_r_1_total = 1.1;                  % Distance of the first stretch [m]
+dx_r_1 = 0.1;                       % resolution                    [m]
+x_r_1 = 0:dx_r_1:x_r_1_total;
+z_r_1 = zeros(1,length(x_r_1));
 % Stretch 2
-R = 0.15;                           % Radius                        [m]
-theta = 0:0.01:pi;
-x2 = -R*cos(theta) + x1_total+R;
-z2 = R*sin(theta);
+R_r = 0.15;                         % Radius                        [m]
+th_r = 0:0.01:pi;
+x_r_2 = -R_r*cos(th_r) + x_r_1_total+R_r;
+z_r_2 = R_r*sin(th_r);
 % Stretch 3
-x3_total = 5;                       % Distance of the last stretch  [m]
-dx2 = 0.1;                          % resolution                    [m]
-x3 = x1_total+2*R:dx2:x1_total+2*R+x3_total;
-z3 = zeros(1,length(x3));
+x_r_3_total = 5;                    % Distance of the last stretch  [m]
+dx_r_2 = 0.1;                       % resolution                    [m]
+x_r_3 = x_r_1_total+2*R_r:dx_r_2:x_r_1_total+2*R_r+x_r_3_total;
+z_r_3 = zeros(1,length(x_r_3));
 
 % Concatenating 
-x_track = [x1 x2(2:end) x3(2:end)];
-y_track = [z1 z2(2:end) z3(2:end)];
+X_r = [x_r_1 x_r_2(2:end) x_r_3(2:end)];
+Z_r = [z_r_1 z_r_2(2:end) z_r_3(2:end)];
 
 figure
 hold on ; box on ; grid on ; axis equal
-plot(x1,z1)
-plot(x2,z2)
-plot(x3,z3)
+plot(x_r_1,z_r_1)
+plot(x_r_2,z_r_2)
+plot(x_r_3,z_r_3)
 
 figure
 hold on ; box on ; grid on ; axis equal
-plot(x_track,y_track,'k','LineWidth',2)
+plot(X_r,Z_r,'k','LineWidth',2)
 
 %% Simulation
 
@@ -79,7 +79,7 @@ sys = ss(A,B,C,D);
 % Input
 vel = 2;                            % Longitudinal speed of the car [m/s]
 lon_pos = vel*time;                 % Longitudinal position of the car [m]
-u_vet = interp1(x_track,y_track,lon_pos)';
+u_vet = interp1(X_r,Z_r,lon_pos)';
 
 figure
 hold on ; grid on ; box on
@@ -123,10 +123,10 @@ for i=1:length(time)
     % Instant position
     x_inst = vel*time(i);
     
-    % Track passing by:
+    % Road passing by:
     set(gca,'xlim',[x_inst-l_win/2    x_inst+l_win/2],'ylim',[-0.1 -0.1+l_win])
     hold on ; grid on ; box on %; axis equal (Dont work well. It drifts vertically)
-    plot([-10 x_track],[0 y_track],'k','LineWidth',3)
+    plot([-10 X_r],[0 Z_r],'k','LineWidth',3)
     
     set(gca,'FontName','Verdana','FontSize',16)
     title(["Quarter car model",strcat('Time=',num2str(time(i),'%.3f'),' s (Playback speed=',num2str(playback_speed),')')])
@@ -147,7 +147,7 @@ for i=1:length(time)
     plot(x_inst,u_vet(i),'ko','MarkerFacecolor','k','MarkerSize',10)
     
     xlabel('x [m]')
-    ylabel('y [m]')
+    ylabel('z [m]')
     
     frame = getframe(gcf);
     writeVideo(v,frame);
@@ -188,7 +188,7 @@ function plotSpring(L0_u,L0_s,h_u,u_vet,z_s,z_u,i,x_inst)
                 c_u                                             % rod/End
                 ];
     
-	spring_u_Y = [ 
+	spring_u_Z = [ 
                 u_vet(i)                                        % Start
                 u_vet(i)+  rodPct*L0_u                          % rod
                 u_vet(i)+  rodPct*L0_u                          % Part 1 
@@ -215,7 +215,7 @@ function plotSpring(L0_u,L0_s,h_u,u_vet,z_s,z_u,i,x_inst)
                 c_s                                             % rod/End
                 ];
     
-	spring_s_Y = [ 
+	spring_s_Z = [ 
                 z_u(i)+h_u                                      % Start
                 z_u(i)+h_u +   rodPct*L0_s                      % rod
                 z_u(i)+h_u +   rodPct*L0_s                      % Part 1 
@@ -229,8 +229,8 @@ function plotSpring(L0_u,L0_s,h_u,u_vet,z_s,z_u,i,x_inst)
                ];
 
     % PLOT
-    plot(spring_u_X,spring_u_Y,'k','LineWidth',spring_wid)
-    plot(spring_s_X,spring_s_Y,'k','LineWidth',spring_wid)
+    plot(spring_u_X,spring_u_Z,'k','LineWidth',spring_wid)
+    plot(spring_s_X,spring_s_Z,'k','LineWidth',spring_wid)
         
 end
 
@@ -247,7 +247,7 @@ function plotDamper(L0_2,h1,z_s,z_u,i,x_inst)
 
     % rod attached to unsprung mass
     rod_1_X = [c c];
-    rod_1_Y = [z_u+h1 z_u+h1+rodLowerPct*L0_2];
+    rod_1_Z = [z_u+h1 z_u+h1+rodLowerPct*L0_2];
     
     % Damper base cylinder - rod - base 
     c_X =   [   
@@ -257,7 +257,7 @@ function plotDamper(L0_2,h1,z_s,z_u,i,x_inst)
                 c+w
             ];
 
-    c_Y =   [
+    c_Z =   [
                 z_u(i) + h1 + rodLowerPct*L0_2 + cylinderPct*L0_2
                 z_u(i) + h1 + rodLowerPct*L0_2 
                 z_u(i) + h1 + rodLowerPct*L0_2 
@@ -266,22 +266,22 @@ function plotDamper(L0_2,h1,z_s,z_u,i,x_inst)
     
     % rod attached to sprung mass
     rod2X = [c c];
-    rod2Y = [z_s z_s-rodUpperPct*L0_2];
+    rod2Z = [z_s z_s-rodUpperPct*L0_2];
     % Piston inside cylinder
     pistonX = [c-0.8*w c+0.8*w];
-    pistonY = [z_s-rodUpperPct*L0_2 z_s-rodUpperPct*L0_2];
+    pistonZ = [z_s-rodUpperPct*L0_2 z_s-rodUpperPct*L0_2];
     
     % Iteration values
-    rod1Yval = rod_1_Y(i,:);
-    rod2Yval = rod2Y(i,:);
-    pistonYVal = pistonY(i,:);
+    rod1Zval = rod_1_Z(i,:);
+    rod2Zval = rod2Z(i,:);
+    pistonZVal = pistonZ(i,:);
 
     % PLOT
     % rods
-    plot(rod_1_X,rod1Yval,'k','LineWidth',damper_line_wid)
-    plot(rod2X,rod2Yval,'k','LineWidth',damper_line_wid)
+    plot(rod_1_X,rod1Zval,'k','LineWidth',damper_line_wid)
+    plot(rod2X,rod2Zval,'k','LineWidth',damper_line_wid)
     % Damper parts
-    plot(pistonX,pistonYVal,'k','LineWidth',damper_line_wid)
-    plot(c_X,c_Y,'k','LineWidth',damper_line_wid)
+    plot(pistonX,pistonZVal,'k','LineWidth',damper_line_wid)
+    plot(c_X,c_Z,'k','LineWidth',damper_line_wid)
 
 end
