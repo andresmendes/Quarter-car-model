@@ -54,10 +54,17 @@ hold on ; box on ; grid on ; axis equal
 plot(x_r_1,z_r_1)
 plot(x_r_2,z_r_2)
 plot(x_r_3,z_r_3)
+xlabel('Distance x [m]')
+ylabel('Distance z [m]')
+legend('Stretch 1','Stretch 2','Stretch 3')
+title('Input')
 
 figure
 hold on ; box on ; grid on ; axis equal
 plot(X_r,Z_r,'k','LineWidth',2)
+xlabel('Distance x [m]')
+ylabel('Distance z [m]')
+title('Input')
 
 %% Simulation
 
@@ -80,11 +87,6 @@ sys = ss(A,B,C,D);
 vel = 2;                            % Longitudinal speed of the car [m/s]
 lon_pos = vel*time;                 % Longitudinal position of the car [m]
 u_vet = interp1(X_r,Z_r,lon_pos)';
-
-figure
-hold on ; grid on ; box on
-plot(time,u_vet)
-legend('u')
 
 [y,time,x] = lsim(sys,u_vet,time);
 
